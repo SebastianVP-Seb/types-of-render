@@ -1,10 +1,17 @@
 import ProductCard from '../productCard/ProductCard';
 import ProductDetailControl from '../ProductDetailControl';
-import SectionView, { ISectionViewProps, SectionViewFunction } from '../SectionView';
+import SectionView, { ISectionViewProps, SectionViewFunction, SectionViewHOC } from '../SectionView';
 import { IColorSelectProps, ITitleProduct } from '../ProductDetailControl';
 import { ArrayProductsCard } from '../../util';
 import CardList from '../productCard/CardList';
 import '../productCard/productCard.css';
+import { SectionViewFunctionGeneric } from '../SectionView';
+import { useState } from 'react';
+
+interface IExampleComponent {
+  items: Array<number>;
+  text: string;
+};
 
 
 const Home = () => {
@@ -128,6 +135,20 @@ const Home = () => {
     );
   };
 
+  //Para render HOC
+  const ComponentCustom = ({readOnly, cancelAction}: {readOnly: boolean, cancelAction: ()=>void}) => {
+
+    const [name, setName] = useState('');
+
+    return (
+      <div style={{border: '2px solid purple'}} >
+        <label htmlFor="">Nombre</label>
+        <input type="text" readOnly={!readOnly} value={name} onChange={e=>setName(e.target.value)} />
+        {readOnly && <button onClick={cancelAction} >Cancelar</button>}
+      </div>
+    );
+  };
+
   return (
     <div>
         {/* <SectionView title='iAmSebastian' rowOneSection={<Component1 />} rowTwoSection={<Component2 numOfItems={4}/>} /> */}
@@ -167,8 +188,46 @@ const Home = () => {
           TitleProduct={TitleOfProduct}
           ColorSelect={SizeSection} 
         />
+
+        {/* Renderizado HOC */}
+        <div>
+          <SectionViewHOC 
+            title='' 
+            readonly={false}
+            customIcon={({isEditable, setOpen, open, setIsEditable})=>{
+              return (
+                <>
+                  <button onClick={()=>setOpen(!open)} >{`${open ? 'Cerrar' : 'Abrir'}`}</button>
+                  {!isEditable && <button onClick={()=>setIsEditable(true)} >Editar</button>}
+                  <p>Nuevo elemento agregado</p>
+                </>
+              );
+            }}
+            >
+            {/* <SectionLastView /> */}
+            {/* {({isEditable, setIsEditable})=>isEditable ? <h3>Componente editable</h3> : <h3>Componente no editable</h3>} */}
+            {/* <h4></h4> */}
+            {({isEditable, setIsEditable})=>
+              <ComponentCustom readOnly={isEditable} cancelAction={()=>setIsEditable(!isEditable)} />}
+          </SectionViewHOC>
+        </div>
     </div>
   );
+
+  // const props: IExampleComponent = { items: [1,2,3,4], text: ''};
+
+  // return (
+  //   <div>
+  //     <SectionViewFunctionGeneric<IExampleComponent> 
+  //       {...props}
+  //       title='Destacado'
+  //       element={({items, text})=><h3></h3>}
+  //     />
+  //   </div>
+  // );
+
 };
+
+
 
 export default Home;
